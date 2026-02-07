@@ -1,9 +1,21 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getRateLimitHeaders } from '@/lib/rate-limit'
 
 // GET /api/shipments - List all shipments
 export async function GET(request: Request) {
   try {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
+    const rateLimitResult = rateLimit(`shipments-get-${ip}`)
+    
+    if (!rateLimitResult.success) {
+      return new NextResponse('Too many requests', {
+        status: 429,
+        headers: getRateLimitHeaders(0),
+      })
+    }
+
     const { searchParams } = new URL(request.url)
     const companyId = searchParams.get('companyId')
     const status = searchParams.get('status')
@@ -40,6 +52,8 @@ export async function GET(request: Request) {
         offset,
         hasMore: offset + limit < total
       }
+    }, {
+      headers: getRateLimitHeaders(rateLimitResult.remaining)
     })
   } catch (error: any) {
     return NextResponse.json(

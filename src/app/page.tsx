@@ -148,6 +148,75 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Comparison Section */}
+      <section className="py-20 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Choose Your Platform
+            </h2>
+            <p className="text-xl text-gray-600">
+              Tailored solutions for couriers and warehouses
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-gray-200">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-900">Feature</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Courier Service</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Warehouse</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: 'Real-time Tracking', courier: true, warehouse: true },
+                  { feature: 'Customer Portal', courier: true, warehouse: false },
+                  { feature: 'Shipment Labels', courier: true, warehouse: false },
+                  { feature: 'Manifest Generation', courier: false, warehouse: true },
+                  { feature: 'Inventory Management', courier: false, warehouse: true },
+                  { feature: 'Cloud Printing', courier: false, warehouse: true },
+                  { feature: 'AI Chatbot', courier: true, warehouse: true },
+                  { feature: 'Analytics Dashboard', courier: true, warehouse: true },
+                  { feature: 'API Integration', courier: true, warehouse: true },
+                  { feature: 'White-Label Support', courier: true, warehouse: true },
+                ].map((item, i) => (
+                  <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 px-6 text-gray-900 font-medium">{item.feature}</td>
+                    <td className="py-4 px-6 text-center">
+                      {item.courier ? (
+                        <CheckCircle className="w-6 h-6 text-green-500 mx-auto" />
+                      ) : (
+                        <div className="w-6 h-6 mx-auto text-gray-300">—</div>
+                      )}
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      {item.warehouse ? (
+                        <CheckCircle className="w-6 h-6 text-green-500 mx-auto" />
+                      ) : (
+                        <div className="w-6 h-6 mx-auto text-gray-300">—</div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-12 grid md:grid-cols-2 gap-8">
+            <Link href="/features/courier" className="block p-8 rounded-xl border-2 border-purple-200 hover:border-purple-600 hover:shadow-lg transition bg-gradient-to-br from-purple-50 to-transparent">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">→ Courier Service</h3>
+              <p className="text-gray-600">Perfect for shipping companies managing customer deliveries</p>
+            </Link>
+            <Link href="/features/warehouse" className="block p-8 rounded-xl border-2 border-orange-200 hover:border-orange-600 hover:shadow-lg transition bg-gradient-to-br from-orange-50 to-transparent">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">→ Warehouse Management</h3>
+              <p className="text-gray-600">Ideal for 3PL and fulfillment center operations</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -288,14 +357,67 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Trusted by Industry Leaders
+            </h2>
+            <p className="text-xl text-gray-600">
+              See what logistics companies are saying about us
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Sarah Johnson",
+                company: "SwiftShip Couriers",
+                role: "Operations Manager",
+                text: "LogisticsHub transformed how we manage deliveries. Our tracking accuracy improved by 99.8% and customer complaints dropped dramatically.",
+                rating: 5
+              },
+              {
+                name: "Michael Chen",
+                company: "Global Logistics Co",
+                role: "CEO",
+                text: "The white-label solution allowed us to rebrand for our customers. Best decision we made for scaling our 3PL business.",
+                rating: 5
+              },
+              {
+                name: "Emma Rodriguez",
+                company: "FreshPack Warehouse",
+                role: "Warehouse Director",
+                text: "Real-time inventory and manifest generation saved us 20+ hours per week. The platform is incredibly intuitive.",
+                rating: 5
+              }
+            ].map((testimonial, i) => (
+              <div key={i} className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl border border-gray-200">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, j) => (
+                    <Star key={j} size={16} className="fill-orange-400 text-orange-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-6 italic">"{testimonial.text}"</p>
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                  <p className="text-sm text-gray-600">{testimonial.role} at {testimonial.company}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-purple-600 to-orange-500 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">
-            Ready to Scale Your Logistics?
+            Ready to Transform Your Logistics?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join 200+ companies already managing their operations on FastForward
+            Join 200+ companies already streamlining their operations
           </p>
           <Link
             href="/onboarding"

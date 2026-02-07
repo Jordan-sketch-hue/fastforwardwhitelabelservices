@@ -95,9 +95,6 @@ export default function Home() {
           <div className="grid gap-12 items-center">
             {/* Left Content */}
             <div>
-              <div className="inline-block bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                🚀 {branding.tagline}
-              </div>
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 {branding.companyName}
               </h1>
@@ -116,7 +113,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
                 <Link
-                  href="#demo"
+                  href="/onboarding?demo=true"
                   className="inline-flex items-center justify-center border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold hover:border-purple-600 hover:text-purple-600 transition"
                 >
                   View Demo

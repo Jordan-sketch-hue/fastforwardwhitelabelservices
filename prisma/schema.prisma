@@ -47,6 +47,19 @@ model User {
   emailVerifiedAt   DateTime?
   isActive          Boolean        @default(true)
   lastLoginAt       DateTime?
+  
+  // Password & Security
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  emailVerificationToken String?
+  twoFactorEnabled  Boolean        @default(false)
+  twoFactorSecret   String?
+  
+  // Profile
+  profilePicture    String?
+  department        String?
+  bio               String?
+  
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   
@@ -58,6 +71,7 @@ model User {
   chatMessages      ChatMessage[]
   activityLogs      ActivityLog[]
   invoicesCreated   Invoice[]      @relation("InvoiceCreatedBy")
+  teamInvitations   TeamInvitation[]
   
   @@index([email])
   @@index([companyId])
@@ -575,3 +589,31 @@ model AnalyticsEvent {
   @@index([event])
   @@index([createdAt])
 }
+
+// ============================================
+// TEAM MANAGEMENT
+// ============================================
+
+model TeamInvitation {
+  id                String         @id @default(cuid())
+  email             String
+  role              UserRole       @default(COMPANY_USER)
+  token             String         @unique
+  status            String         @default("pending") // pending, accepted, declined
+  expiresAt         DateTime
+  
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  invitedBy         String
+  invitedByUser     User           @relation(fields: [invitedBy], references: [id])
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([companyId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+}
+

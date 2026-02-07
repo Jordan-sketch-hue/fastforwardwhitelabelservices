@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FastForward - Courier & Warehousing SaaS Platform
 
-## Getting Started
+A complete logistics management platform for couriers, warehousing, and shipping services built with Next.js.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Core Functionality
+- **Real-time Package Tracking** - Track shipments in real-time with detailed event history
+- **Courier Platform** - Complete solution for courier companies ($34.99/month + $0.20/pkg)
+- **Warehouse Platform** - Enterprise warehouse management ($249.99/month + $0.15/pkg)
+- **Advanced Reporting** - Comprehensive analytics and business intelligence
+- **White Label Solution** - Customize the platform with your branding
+- **API Integration** - RESTful API for seamless integration
+- **Multi-user Support** - Unlimited users per account
+- **Multi-location Support** - Manage multiple warehouses and locations
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Authentication**: JWT (NextAuth.js ready)
+- **Database**: Prisma ORM (configured for PostgreSQL)
+- **UI Components**: Lucide Icons
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Quick Start
 
-## Learn More
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Configure environment variables**
+   Create a `.env.local` file:
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/fastforward"
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXT_PUBLIC_API_URL="http://localhost:3000"
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Run development server**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Open browser**
+   Navigate to `http://localhost:3000`
 
-## Deploy on Vercel
+## 📁 Key Routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Landing Page**: `/` - Marketing homepage
+- **Onboarding**: `/onboarding` - Sign up and account creation
+- **Authentication**: `/auth/login` - User login
+- **Dashboard**: `/dashboard` - Admin panel
+- **API Docs**: `/docs` - API documentation
+- **API**: `/api/*` - RESTful endpoints
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔌 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new account
+- `POST /api/auth/login` - Login
+
+### Packages
+- `GET /api/packages` - List packages
+- `POST /api/packages` - Create shipment
+- `GET /api/packages?tracking=XX` - Track by number
+
+## 🎨 Branding
+
+- **Primary Color**: Purple (#7C3AED)
+- **Secondary Color**: Orange (#F97316)
+- **Logo**: FF gradient badge
+
+## 📊 Dashboard Features
+
+- Real-time statistics
+- Package management
+- Shipment tracking
+- API key management
+- Team settings
+- Revenue analytics
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Push to GitHub
+2. Connect repository to Vercel
+3. Set environment variables
+4. Deploy
+
+### Other Platforms
+Works with AWS, Google Cloud, Azure, DigitalOcean, Heroku, etc.
+
+## 📞 Support
+
+- **Documentation**: `/docs`
+- **Email**: support@fastforward.com
+- **Phone**: 1-800-FASTFWD
+
+## 📄 License
+
+MIT License - See LICENSE file
+
+---
+
+**FastForward** - Faster Is Always Better 🚀

@@ -1,0 +1,577 @@
+// FastForward Platform - Comprehensive Database Schema
+// PhD-level logistics management system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// CORE MODELS
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  COMPANY_USER
+  CUSTOMER
+  COURIER
+}
+
+enum PlanType {
+  COURIER
+  WAREHOUSE
+  ENTERPRISE
+}
+
+enum PlanTier {
+  FREE_TRIAL
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  password          String
+  firstName         String
+  lastName          String
+  phone             String?
+  role              UserRole       @default(COMPANY_USER)
+  emailVerified     Boolean        @default(false)
+  emailVerifiedAt   DateTime?
+  isActive          Boolean        @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Relations
+  companyId         String?
+  company           Company?       @relation(fields: [companyId], references: [id])
+  apiKeys           ApiKey[]
+  notifications     Notification[]
+  chatMessages      ChatMessage[]
+  activityLogs      ActivityLog[]
+  invoicesCreated   Invoice[]      @relation("InvoiceCreatedBy")
+  
+  @@index([email])
+  @@index([companyId])
+}
+
+model Company {
+  id                String         @id @default(cuid())
+  name              String
+  slug              String         @unique
+  email             String
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  country           String         @default("USA")
+  zipCode           String?
+  
+  // Plan & Billing
+  planType          PlanType
+  planTier          PlanTier       @default(FREE_TRIAL)
+  billingEmail      String?
+  stripeCustomerId  String?        @unique
+  subscriptionId    String?
+  trialEndsAt       DateTime?
+  subscriptionEndsAt DateTime?
+  
+  // White Label
+  customDomain      String?        @unique
+  brandColor        String?        @default("#7C3AED")
+  logo              String?
+  favicon           String?
+  
+  // Features
+  features          Json?          // Dynamic feature flags
+  settings          Json?          // Company-specific settings
+  
+  // Metadata
+  isActive          Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  // Relations
+  users             User[]
+  shipments         Shipment[]
+  customers         Customer[]
+  invoices          Invoice[]
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  locations         Location[]
+  
+  @@index([slug])
+  @@index([planType])
+}
+
+model Location {
+  id                String         @id @default(cuid())
+  name              String
+  address           String
+  city              String
+  state             String
+  country           String
+  zipCode           String
+  phone             String?
+  email             String?
+  
+  isPrimary         Boolean        @default(false)
+  isWarehouse       Boolean        @default(false)
+  warehouseCapacity Int?           // Square feet
+  
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  shipmentsOrigin   Shipment[]     @relation("ShipmentOrigin")
+  shipmentsDestination Shipment[]  @relation("ShipmentDestination")
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([companyId])
+}
+
+// ============================================
+// CUSTOMER MANAGEMENT
+// ============================================
+
+model Customer {
+  id                String         @id @default(cuid())
+  email             String
+  firstName         String
+  lastName          String
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  country           String?
+  zipCode           String?
+  
+  // Customer Portal Access
+  portalPassword    String?
+  portalLastLogin   DateTime?
+  
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  shipments         Shipment[]
+  invoices          Invoice[]
+  notifications     Notification[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@unique([email, companyId])
+  @@index([companyId])
+  @@index([email])
+}
+
+// ============================================
+// SHIPMENT & TRACKING
+// ============================================
+
+enum ShipmentStatus {
+  DRAFT
+  PENDING
+  PROCESSING
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  RETURNED
+  CANCELLED
+}
+
+enum ShipmentPriority {
+  STANDARD
+  EXPRESS
+  OVERNIGHT
+  INTERNATIONAL
+}
+
+model Shipment {
+  id                String            @id @default(cuid())
+  trackingNumber    String            @unique
+  referenceNumber   String?
+  
+  // Sender & Receiver
+  senderName        String
+  senderPhone       String?
+  senderEmail       String?
+  senderAddress     String
+  
+  receiverName      String
+  receiverPhone     String?
+  receiverEmail     String?
+  receiverAddress   String
+  
+  // Shipment Details
+  status            ShipmentStatus    @default(PENDING)
+  priority          ShipmentPriority  @default(STANDARD)
+  weight            Float?            // kg
+  dimensions        Json?             // {length, width, height}
+  value             Float?            // declared value
+  description       String?
+  packageCount      Int               @default(1)
+  
+  // Logistics
+  pickupDate        DateTime?
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+  
+  // Pricing
+  basePrice         Float?
+  insurancePrice    Float?
+  additionalFees    Float?
+  totalPrice        Float?
+  currency          String            @default("USD")
+  
+  // Relations
+  companyId         String
+  company           Company           @relation(fields: [companyId], references: [id])
+  
+  customerId        String?
+  customer          Customer?         @relation(fields: [customerId], references: [id])
+  
+  originId          String?
+  origin            Location?         @relation("ShipmentOrigin", fields: [originId], references: [id])
+  
+  destinationId     String?
+  destination       Location?         @relation("ShipmentDestination", fields: [destinationId], references: [id])
+  
+  // Tracking & Events
+  trackingEvents    TrackingEvent[]
+  packages          Package[]
+  invoices          Invoice[]
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  @@index([trackingNumber])
+  @@index([companyId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model TrackingEvent {
+  id                String         @id @default(cuid())
+  status            String
+  location          String
+  description       String
+  latitude          Float?
+  longitude         Float?
+  timestamp         DateTime       @default(now())
+  
+  shipmentId        String
+  shipment          Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  
+  @@index([shipmentId])
+  @@index([timestamp])
+}
+
+model Package {
+  id                String         @id @default(cuid())
+  packageNumber     String         @unique
+  weight            Float
+  dimensions        Json           // {length, width, height}
+  description       String?
+  barcode           String?
+  qrCode            String?
+  
+  shipmentId        String
+  shipment          Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([shipmentId])
+  @@index([packageNumber])
+}
+
+// ============================================
+// BILLING & INVOICING
+// ============================================
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  STRIPE
+  BANK_TRANSFER
+  CASH
+  OTHER
+}
+
+model Invoice {
+  id                String         @id @default(cuid())
+  invoiceNumber     String         @unique
+  status            InvoiceStatus  @default(DRAFT)
+  
+  // Amounts
+  subtotal          Float
+  tax               Float          @default(0)
+  discount          Float          @default(0)
+  total             Float
+  amountPaid        Float          @default(0)
+  currency          String         @default("USD")
+  
+  // Dates
+  issueDate         DateTime       @default(now())
+  dueDate           DateTime
+  paidDate          DateTime?
+  
+  // Relations
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id])
+  
+  customerId        String?
+  customer          Customer?      @relation(fields: [customerId], references: [id])
+  
+  shipmentId        String?
+  shipment          Shipment?      @relation(fields: [shipmentId], references: [id])
+  
+  createdById       String
+  createdBy         User           @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  
+  payments          Payment[]
+  
+  // Metadata
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([invoiceNumber])
+  @@index([companyId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model Payment {
+  id                String         @id @default(cuid())
+  amount            Float
+  currency          String         @default("USD")
+  method            PaymentMethod
+  transactionId     String?
+  stripePaymentId   String?
+  
+  invoiceId         String
+  invoice           Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  
+  @@index([invoiceId])
+  @@index([transactionId])
+}
+
+// ============================================
+// API & INTEGRATIONS
+// ============================================
+
+model ApiKey {
+  id                String         @id @default(cuid())
+  key               String         @unique
+  name              String
+  isActive          Boolean        @default(true)
+  lastUsedAt        DateTime?
+  expiresAt         DateTime?
+  
+  // Permissions
+  permissions       Json?          // {read: true, write: false, delete: false}
+  
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  apiLogs           ApiLog[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([key])
+  @@index([companyId])
+}
+
+model ApiLog {
+  id                String         @id @default(cuid())
+  endpoint          String
+  method            String
+  statusCode        Int
+  responseTime      Int            // milliseconds
+  ipAddress         String?
+  userAgent         String?
+  
+  apiKeyId          String?
+  apiKey            ApiKey?        @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  
+  requestBody       Json?
+  responseBody      Json?
+  errorMessage      String?
+  
+  createdAt         DateTime       @default(now())
+  
+  @@index([apiKeyId])
+  @@index([createdAt])
+  @@index([endpoint])
+}
+
+model Webhook {
+  id                String         @id @default(cuid())
+  url               String
+  events            String[]       // ['shipment.created', 'shipment.delivered']
+  secret            String
+  isActive          Boolean        @default(true)
+  
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  webhookLogs       WebhookLog[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([companyId])
+}
+
+model WebhookLog {
+  id                String         @id @default(cuid())
+  event             String
+  payload           Json
+  statusCode        Int?
+  response          Json?
+  errorMessage      String?
+  retryCount        Int            @default(0)
+  
+  webhookId         String
+  webhook           Webhook        @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime       @default(now())
+  
+  @@index([webhookId])
+  @@index([createdAt])
+}
+
+// ============================================
+// NOTIFICATIONS & MESSAGING
+// ============================================
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+model Notification {
+  id                String              @id @default(cuid())
+  title             String
+  message           String
+  type              NotificationType    @default(INFO)
+  channel           NotificationChannel @default(IN_APP)
+  isRead            Boolean             @default(false)
+  readAt            DateTime?
+  
+  userId            String?
+  user              User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  customerId        String?
+  customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  metadata          Json?
+  createdAt         DateTime            @default(now())
+  
+  @@index([userId])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model ChatMessage {
+  id                String         @id @default(cuid())
+  message           String
+  isAI              Boolean        @default(false)
+  sentiment         String?        // positive, neutral, negative
+  
+  userId            String?
+  user              User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sessionId         String
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+// ============================================
+// ACTIVITY & AUDIT LOGS
+// ============================================
+
+model ActivityLog {
+  id                String         @id @default(cuid())
+  action            String         // 'created_shipment', 'updated_invoice'
+  entity            String         // 'Shipment', 'Invoice'
+  entityId          String
+  description       String?
+  ipAddress         String?
+  userAgent         String?
+  
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  
+  @@index([userId])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+// ============================================
+// ANALYTICS & REPORTING
+// ============================================
+
+model AnalyticsEvent {
+  id                String         @id @default(cuid())
+  event             String         // 'page_view', 'shipment_created'
+  properties        Json
+  sessionId         String?
+  
+  companyId         String?
+  
+  createdAt         DateTime       @default(now())
+  
+  @@index([companyId])
+  @@index([event])
+  @@index([createdAt])
+}

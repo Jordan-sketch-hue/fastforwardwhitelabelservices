@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import { branding } from '@/config/branding'
 import {
   Package,
   TrendingUp,
@@ -95,13 +96,13 @@ export default function Home() {
             {/* Left Content */}
             <div>
               <div className="inline-block bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                🚀 Complete Logistics Platform
+                🚀 {branding.tagline}
               </div>
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Reliable Courier & Warehousing SaaS
+                {branding.companyName}
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Manage all your customers, packages, and warehousing operations in one powerful platform. 
+                {branding.description}
                 <span className="block text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-orange-500 mt-2">
                   Faster Is Always Better
                 </span>

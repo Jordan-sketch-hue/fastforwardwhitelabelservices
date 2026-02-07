@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { branding } from '@/config/branding'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -18,7 +19,7 @@ export default function Navigation() {
                 <span className="text-white font-bold text-lg">FF</span>
               </div>
               <div className="hidden md:block">
-                <h1 className="text-xl font-bold text-gray-900">FastForward</h1>
+                <h1 className="text-xl font-bold text-gray-900">{branding.companyName}</h1>
                 <p className="text-xs text-gray-500">Faster Is Always Better</p>
               </div>
             </Link>

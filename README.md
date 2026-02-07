@@ -437,6 +437,54 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you find this project useful, please consider giving it a star on GitHub!
 
+---
+
+## 🔗 Partner Integration System (NEW)
+
+FastForward now includes a complete **multi-tenant partner API** for warehouse-to-partner company integration:
+
+### Partner Features
+- ✅ **API Authentication** - JWT-based security with API keys
+- ✅ **Real-Time Data Sync** - Live shipment information access
+- ✅ **Webhook Notifications** - Event-driven updates with retry logic
+- ✅ **AI Load Balancing** - Automatic shipment distribution
+- ✅ **Rate Limiting** - Tier-based quotas (Starter/Pro/Enterprise)
+- ✅ **Partner Onboarding** - 5-step setup wizard
+
+### Integration Documents
+- 📖 [API Documentation](API_DOCUMENTATION.md) - Complete API reference
+- 📖 [Implementation Guide](PARTNER_IMPLEMENTATION_GUIDE.md) - Code examples
+- 📖 [Complete Workflow](COMPLETE_WORKFLOW.md) - Architecture & flows
+- 📖 [Implementation Summary](IMPLEMENTATION_SUMMARY.md) - Technical details
+
+### Quick Integration
+```bash
+# 1. Generate JWT Token
+curl -X POST https://api.fastforward.com/v1/partner/auth \
+  -d '{"apiKey": "ff_sk_live_xxx", "secret": "your_secret"}'
+
+# 2. List Shipments
+curl https://api.fastforward.com/v1/partner/shipments \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 3. Register Webhooks
+curl -X POST https://api.fastforward.com/v1/partner/webhooks \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"url": "https://your.com/webhook", "events": ["shipment.delivered"]}'
+```
+
+### Partner Endpoints
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /api/partner/auth` | Generate JWT token |
+| `GET /api/partner/shipments` | List shipments |
+| `POST /api/partner/shipments` | Create shipment |
+| `GET /api/partner/tracking/{trackingNumber}` | Track shipment |
+| `GET/POST/PATCH/DELETE /api/partner/webhooks` | Webhook management |
+| `POST /api/admin/ai` | Trigger AI operations |
+
+---
+
 [![Star History Chart](https://api.star-history.com/svg?repos=YOUR-USERNAME/fastforwardtpcourier&type=Date)](https://star-history.com/#YOUR-USERNAME/fastforwardtpcourier&Date)
 
 ---
@@ -445,6 +493,6 @@ If you find this project useful, please consider giving it a star on GitHub!
 
 **Built with ❤️ by the FastForward Team**
 
-[Website](https://fastforward.com) · [Documentation](DEPLOYMENT.md) · [Report Bug](https://github.com/YOUR-USERNAME/fastforwardtpcourier/issues) · [Request Feature](https://github.com/YOUR-USERNAME/fastforwardtpcourier/issues)
+[Website](https://fastforward.com) · [Documentation](DEPLOYMENT.md) · [API Docs](API_DOCUMENTATION.md) · [Report Bug](https://github.com/YOUR-USERNAME/fastforwardtpcourier/issues) · [Request Feature](https://github.com/YOUR-USERNAME/fastforwardtpcourier/issues)
 
 </div>
